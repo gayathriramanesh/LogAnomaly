@@ -1,0 +1,175 @@
+services:
+   auth:
+       build:
+        context: ./Auth
+       ports:
+          - "6010:5000"
+       volumes:
+          - ./Auth:/app/Auth
+          - ./shared:/app/shared 
+          - ./Logs_Generator:/app/Logs_Generator
+          - ./secrets.env:/app/secrets.env
+          - ./Auth/logs:/app/logs   
+          - ./Auth/logs:/logs/auth_logs
+       restart: always
+       depends_on:
+            - db
+       environment:
+          - JWT_SECRET_KEY=k2jcowuhg4bmn78r6pd9zvqliy1f30sxt5e
+          - ALGORITHM=HS256
+          - DATABASE_URL=postgresql://postgres:Int613613@db:5432/postgres
+       networks:
+         - elasticsearch_network
+
+   registration:
+       build:
+        context: ./Registration
+       ports:
+          - "6001:5000"
+       volumes:
+          - ./Registration:/app/Registration
+          - ./shared:/app/shared 
+          - ./Auth:/app/Auth
+          - ./Logs_Generator:/app/Logs_Generator
+          - ./Registration/logs:/app/logs                
+          - ./Registration/logs:/logs/registration_logs
+          - ./secrets.env:/app/secrets.env
+       restart: always
+       depends_on:
+            - db
+       environment:
+          - JWT_SECRET_KEY=k2jcowuhg4bmn78r6pd9zvqliy1f30sxt5e
+          - ALGORITHM=HS256
+          - DATABASE_URL=postgresql://postgres:Int613613@db:5432/postgres
+       networks:
+        - elasticsearch_network
+
+   logservice:
+       build:
+        context: ./Logs_Generator
+       ports:
+          - "6002:5000"
+       volumes:
+          - ./Logs_Generator:/app
+          - ./shared:/app/shared 
+          - ./Auth:/app/Auth
+          - ./Registration:/app/Registration
+          - ./secrets.env:/app/secrets.env
+       restart: always
+       depends_on:
+            - db
+       environment:
+          - JWT_SECRET_KEY=k2jcowuhg4bmn78r6pd9zvqliy1f30sxt5e
+          - ALGORITHM=HS256
+          - DATABASE_URL=postgresql://postgres:Int613613@db:5432/postgres
+       networks:
+        - elasticsearch_network
+  
+   Elasticsearch:
+       image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+       container_name: elasticsearch
+       restart: always
+       environment:
+          - discovery.type=single-node
+          - xpack.security.enabled=false
+       ports:
+          - "9200:9200"
+          - "9300:9300"
+       volumes:
+          - es_data:/usr/share/elasticsearch/data
+       networks:
+          - elasticsearch_network
+
+   LogStash:
+       image: logstash:8.10.2
+       container_name: logstash
+       restart: always
+       ports:
+          - "9600:9600"
+       volumes:
+          - ./shared/logstash.conf:/logstash_dir/logstash.conf
+          - ./Registration/logs:/logs/registration_logs
+          - ./Logs_Generator/logs:/logs/generator_logs
+          - ./Auth/logs:/logs/auth_logs
+       command: logstash -f /logstash_dir/logstash.conf
+       depends_on:
+            - Elasticsearch
+       networks:
+          - elasticsearch_network
+   
+   kibana:
+       image: kibana:8.10.2
+       container_name: kibana
+       restart: always
+       ports:
+          - "5601:5601"
+       environment:
+          - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+       depends_on:
+            - Elasticsearch
+       networks:
+          - elasticsearch_network
+   
+   zookeeper:
+      image: wurstmeister/zookeeper:latest
+      container_name: zookeeper
+      ports:
+         - "2181:2181"
+      environment:
+         ZOOKEEPER_CLIENT_PORT: 2181
+         ZOOKEEPER_TICK_TIME: 2000
+      networks:
+        - elasticsearch_network
+
+   kafka:
+      image: wurstmeister/kafka:latest
+      container_name: kafka
+      ports:
+         - "9092:9092"
+      environment:
+         KAFKA_BROKER_ID: 1
+         KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+         KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+         KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      networks:
+          - elasticsearch_network
+      depends_on:
+         - zookeeper
+
+   kafka-ui:
+     image: provectuslabs/kafka-ui:latest
+     container_name: kafka-ui
+     ports:
+      - "8080:8080"
+     environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+     depends_on:
+      - kafka
+     networks:
+      - elasticsearch_network
+   
+   db:
+    image: postgres:17
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Int613613
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+     - elasticsearch_network
+
+volumes:
+  db_data:
+  es_data: {}
+
+networks:
+   elasticsearch_network:
+      driver: bridge
+    

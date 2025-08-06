@@ -1,0 +1,16 @@
+{"timestamp": "2025-07-24 23:25:22,306", "level": "INFO", "message": "Registration attempt for user: mee@gmail.com"}
+{"timestamp": "2025-07-24 23:26:04,443", "level": "INFO", "message": "Registration attempt for user: user@example.com"}
+{"timestamp": "2025-07-24 23:26:49,042", "level": "INFO", "message": "Registration attempt for user: user@example.com"}
+{"timestamp": "2025-07-24 23:27:35,159", "level": "INFO", "message": "Registration attempt for user: user@example.com"}
+{"timestamp": "2025-07-24 23:28:20,037", "level": "INFO", "message": "Registration attempt for user: user@example.com"}
+{"timestamp": "2025-07-24 23:30:23,955", "level": "INFO", "message": "Registration attempt for user: user@example.com"}
+{"timestamp": "2025-07-24 23:30:59,423", "level": "INFO", "message": "Registration attempt for user: user@example.com"}
+{"timestamp": "2025-07-24 23:31:29,849", "level": "INFO", "message": "Registration attempt for user: user@example.com"}
+{"timestamp": "2025-07-24 23:31:30,240", "level": "INFO", "message": "Registration successful for user: user@example.com"}
+{"timestamp": "2025-08-04 17:58:18,323", "level": "INFO", "message": "Registration attempt for user: user@example.com"}
+{"timestamp": "2025-08-04 17:58:18,558", "level": "INFO", "message": "Registration successful for user: user@example.com"}
+{"timestamp": "2025-08-04 17:58:18,586", "level": "INFO", "message": "Triggered log generation via gRPC."}
+{"timestamp": "2025-08-06 12:58:07,122", "level": "INFO", "message": "Registration attempt for user: user@example.com"}
+{"timestamp": "2025-08-06 13:00:26,591", "level": "INFO", "message": "Registration attempt for user: user@example.com"}
+{"timestamp": "2025-08-06 13:00:26,853", "level": "INFO", "message": "Registration successful for user: user@example.com"}
+{"timestamp": "2025-08-06 13:00:26,905", "level": "INFO", "message": "Triggered log generation via gRPC."}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package logs;
+
+import "google/protobuf/empty.proto";
+
+service LogsService {
+    rpc logs(google.protobuf.Empty) returns (google.protobuf.Empty);
+}

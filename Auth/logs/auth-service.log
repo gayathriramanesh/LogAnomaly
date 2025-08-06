@@ -1,0 +1,3 @@
+{"timestamp": "2025-08-04 17:59:56,489", "level": "INFO", "message": "Login attempt for user: user@example.com"}
+{"timestamp": "2025-08-04 17:59:56,701", "level": "INFO", "message": "Login successful for user: user@example.com"}
+{"timestamp": "2025-08-04 17:59:56,731", "level": "INFO", "message": "Triggered log generation via gRPC."}
